@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cờ Oẳn Tù Tì 9x9 - Sảnh Chờ</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Thanh điều hướng trên cùng -->
+  <header class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">⚔️</div>
+      <div>
+        <div class="brand-name">OTTv2 • Oẳn Tù Tì 9x9</div>
+        <div class="brand-desc">Đồ án Lập trình mạng</div>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <button id="btn-rules-lobby" class="btn btn-secondary" title="Xem luật cờ Oẳn Tù Tì 9x9">
+        📖 Luật Chơi
+      </button>
+      <button id="btn-sound-toggle-lobby" class="btn btn-secondary" title="Bật/Tắt âm thanh">
+        🔊
+      </button>
+    </div>
+  </header>
+
+  <main class="lobby-container">
+    <!-- Tiêu đề trang -->
+    <div class="lobby-header">
+      <h1>CỜ OẲN TÙ TÌ CHIẾN THUẬT 9x9</h1>
+      <p>Chọn một trong hai chế độ thi đấu bên dưới để bắt đầu</p>
+    </div>
+
+    <!-- Khối nhập tên kỳ thủ -->
+    <div class="user-strip">
+      <div class="input-box">
+        <label for="input-player-name" style="font-size: 14px; font-weight: 700; white-space: nowrap;">
+          Tên của bạn:
+        </label>
+        <input
+          type="text"
+          id="input-player-name"
+          class="input-field"
+          placeholder="Nhập tên hoặc biệt danh..."
+          maxlength="20"
+        />
+      </div>
+
+      <div style="display: flex; gap: 10px;">
+        <button id="btn-play-ai" class="btn btn-secondary" title="Luyện tập với máy">
+          🤖 Đấu Với Máy (AI)
+        </button>
+        <a href="arena.html?mode=local" class="btn btn-secondary" title="Chơi 2 người trên cùng màn hình">
+          👥 2 Người Chung Máy
+        </a>
+      </div>
+    </div>
+
+    <!-- HAI CHỨC NĂNG CHÍNH CỦA ỨNG DỤNG -->
+    <div class="lobby-grid">
+      <!-- 1. CHỨC NĂNG CHƠI HAI NGƯỜI (1 vs 1) -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">1. CHƠI HAI NGƯỜI (1-VS-1)</div>
+            <div class="card-desc">Ghép trận nhanh chóng qua mã phòng riêng</div>
+          </div>
+          <span style="font-size: 22px;">🎮</span>
+        </div>
+
+        <!-- Tạo phòng mới -->
+        <div class="section-box">
+          <div class="section-title">Bạn chưa có phòng?</div>
+          <p style="font-size: 13px; color: var(--text-muted);">
+            Hệ thống sẽ tạo ngay một mã phòng 4 số ngẫu nhiên để bạn gửi cho bạn bè cùng vào đấu.
+          </p>
+          <button id="btn-create-room" class="btn btn-primary" style="margin-top: 4px;">
+            Tạo Phòng Mới
+          </button>
+        </div>
+
+        <!-- Nhập mã phòng có sẵn -->
+        <div class="section-box">
+          <div class="section-title">Bạn đã có mã phòng?</div>
+          <input
+            type="text"
+            id="input-room-code"
+            class="input-field"
+            placeholder="Nhập mã phòng (ví dụ: 1024)..."
+            maxlength="10"
+            style="font-family: monospace; font-size: 16px; font-weight: 700; text-align: center; letter-spacing: 2px;"
+          />
+          <div style="display: flex; gap: 10px;">
+            <button id="btn-join-player" class="btn btn-primary" style="flex: 1.2;">
+              ⚔️ Vào Đấu
+            </button>
+            <button id="btn-join-spectator" class="btn btn-secondary" style="flex: 1;">
+              👁️ Vào Xem
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- 2. CHỨC NĂNG GIẢI ĐẤU (4 BÀN THI ĐẤU GỌN GÀNG) -->
+      <section class="card">
+        <div class="card-header">
+          <div>
+            <div class="card-title">2. GIẢI ĐẤU (4 BÀN ĐẤU)</div>
+            <div class="card-desc">Hệ thống 4 bàn song song, theo dõi gọn gàng tập trung</div>
+          </div>
+          <span style="font-size: 22px;">🏆</span>
+        </div>
+
+        <!-- Danh sách 4 bàn giải đấu -->
+        <div class="tournament-list" id="lobby-tournament-list">
+          <!-- Bàn 1 -->
+          <div class="tour-item">
+            <div class="tour-item-info">
+              <div class="tour-item-name">Bàn 01 (Trận 1)</div>
+              <div class="tour-item-players" id="t1-info">🔴 Đang chờ • 🔵 Đang chờ</div>
+            </div>
+            <div class="tour-item-actions">
+              <button class="btn btn-primary btn-tour-join" data-table="1" style="padding: 6px 12px; font-size: 12px;">Đấu</button>
+              <button class="btn btn-secondary btn-tour-watch" data-table="1" style="padding: 6px 12px; font-size: 12px;">Xem</button>
+            </div>
+          </div>
+
+          <!-- Bàn 2 -->
+          <div class="tour-item">
+            <div class="tour-item-info">
+              <div class="tour-item-name">Bàn 02 (Trận 2)</div>
+              <div class="tour-item-players" id="t2-info">🔴 Đang chờ • 🔵 Đang chờ</div>
+            </div>
+            <div class="tour-item-actions">
+              <button class="btn btn-primary btn-tour-join" data-table="2" style="padding: 6px 12px; font-size: 12px;">Đấu</button>
+              <button class="btn btn-secondary btn-tour-watch" data-table="2" style="padding: 6px 12px; font-size: 12px;">Xem</button>
+            </div>
+          </div>
+
+          <!-- Bàn 3 -->
+          <div class="tour-item">
+            <div class="tour-item-info">
+              <div class="tour-item-name">Bàn 03 (Trận 3)</div>
+              <div class="tour-item-players" id="t3-info">🔴 Đang chờ • 🔵 Đang chờ</div>
+            </div>
+            <div class="tour-item-actions">
+              <button class="btn btn-primary btn-tour-join" data-table="3" style="padding: 6px 12px; font-size: 12px;">Đấu</button>
+              <button class="btn btn-secondary btn-tour-watch" data-table="3" style="padding: 6px 12px; font-size: 12px;">Xem</button>
+            </div>
+          </div>
+
+          <!-- Bàn 4 (Chung kết) -->
+          <div class="tour-item" style="border-color: rgba(245, 158, 11, 0.4);">
+            <div class="tour-item-info">
+              <div class="tour-item-name" style="color: var(--color-amber);">Bàn 04 (Chung Kết)</div>
+              <div class="tour-item-players" id="t4-info">🔴 Đang chờ • 🔵 Đang chờ</div>
+            </div>
+            <div class="tour-item-actions">
+              <button class="btn btn-primary btn-tour-join" data-table="4" style="padding: 6px 12px; font-size: 12px; background-color: var(--color-amber); color: #000;">Đấu</button>
+              <button class="btn btn-secondary btn-tour-watch" data-table="4" style="padding: 6px 12px; font-size: 12px;">Xem</button>
+            </div>
+          </div>
+        </div>
+
+        <a href="arena.html?mode=tournament&role=spectator" class="btn btn-secondary" style="width: 100%; text-align: center;">
+          📺 Vào Xem Đấu Trường Giải Đấu
+        </a>
+      </section>
+    </div>
+  </main>
+
+  <!-- MODAL LUẬT CHƠI (Tối giản, dễ hiểu) -->
+  <div id="rules-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-title">📖 QUY TẮC CỜ OẲN TÙ TÌ 9x9 (OTTV2)</div>
+      <div class="modal-desc" style="display: flex; flex-direction: column; gap: 10px; line-height: 1.6;">
+        <p><strong>1. Lực lượng:</strong> Mỗi bên có 9 quân cờ gồm 3 Đấm (✊), 3 Lá (✋), 3 Kéo (✌️).</p>
+        <p><strong>2. Di chuyển:</strong> Mỗi quân đi 1 ô theo 8 hướng (ngang, dọc, chéo).</p>
+        <p><strong>3. Quy tắc ăn quân:</strong></p>
+        <ul style="padding-left: 20px;">
+          <li>✊ <strong>Đấm</strong> ăn ✌️ <strong>Kéo</strong></li>
+          <li>✌️ <strong>Kéo</strong> ăn ✋ <strong>Lá</strong></li>
+          <li>✋ <strong>Lá</strong> ăn ✊ <strong>Đấm</strong></li>
+          <li><em>Hai quân cùng loại không thể ăn nhau, chỉ đứng chặn đường nhau.</em></li>
+        </ul>
+        <p><strong>4. Điều kiện chiến thắng:</strong></p>
+        <ul style="padding-left: 20px;">
+          <li>🎯 <strong>Đột kích căn cứ:</strong> Đỏ đưa quân vào ô <strong>i9</strong> hoặc Xanh đưa quân vào ô <strong>a1</strong> ➔ Thắng ngay!</li>
+          <li>⚔️ <strong>Tuyệt diệt:</strong> Ăn sạch toàn bộ quân cờ của đối thủ trên bàn ➔ Thắng tuyệt đối!</li>
+        </ul>
+      </div>
+      <button id="btn-close-rules" class="btn btn-primary" style="align-self: flex-end;">
+        Đã Hiểu
+      </button>
+    </div>
+  </div>
+
+  <script src="js/sound.js"></script>
+  <script>
+    // Xử lý sảnh chính
+    document.addEventListener('DOMContentLoaded', () => {
+      const inputName = document.getElementById('input-player-name');
+      const savedName = localStorage.getItem('ott_player_name') || `Kỳ thủ ${Math.floor(Math.random() * 100)}`;
+      inputName.value = savedName;
+
+      inputName.addEventListener('change', () => {
+        localStorage.setItem('ott_player_name', inputName.value.trim());
+      });
+
+      function getName() {
+        return inputName.value.trim() || savedName;
+      }
+
+      // Tạo phòng mới
+      document.getElementById('btn-create-room').addEventListener('click', () => {
+        const code = Math.floor(1000 + Math.random() * 9000).toString();
+        window.location.href = `arena.html?mode=online&room=${code}&role=red&name=${encodeURIComponent(getName())}`;
+      });
+
+      // Vào phòng chơi
+      document.getElementById('btn-join-player').addEventListener('click', () => {
+        const code = document.getElementById('input-room-code').value.trim();
+        if (!code) {
+          alert('Vui lòng nhập mã phòng!');
+          return;
+        }
+        window.location.href = `arena.html?mode=online&room=${code.toUpperCase()}&role=auto&name=${encodeURIComponent(getName())}`;
+      });
+
+      // Vào xem phòng
+      document.getElementById('btn-join-spectator').addEventListener('click', () => {
+        const code = document.getElementById('input-room-code').value.trim();
+        if (!code) {
+          alert('Vui lòng nhập mã phòng!');
+          return;
+        }
+        window.location.href = `arena.html?mode=online&room=${code.toUpperCase()}&role=spectator&name=${encodeURIComponent(getName())}`;
+      });
+
+      // Đấu với Máy (AI)
+      document.getElementById('btn-play-ai').addEventListener('click', () => {
+        window.location.href = `arena.html?mode=ai&name=${encodeURIComponent(getName())}`;
+      });
+
+      // Tham gia bàn giải đấu
+      document.querySelectorAll('.btn-tour-join').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tableId = btn.getAttribute('data-table');
+          window.location.href = `arena.html?mode=tournament&role=player&table=${tableId}&color=auto&name=${encodeURIComponent(getName())}`;
+        });
+      });
+
+      // Xem bàn giải đấu
+      document.querySelectorAll('.btn-tour-watch').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const tableId = btn.getAttribute('data-table');
+          window.location.href = `arena.html?mode=tournament&role=spectator&table=${tableId}&name=${encodeURIComponent(getName())}`;
+        });
+      });
+
+      // Modal luật chơi
+      const rulesModal = document.getElementById('rules-modal');
+      document.getElementById('btn-rules-lobby').onclick = () => rulesModal.style.display = 'flex';
+      document.getElementById('btn-close-rules').onclick = () => rulesModal.style.display = 'none';
+
+      // Nút âm thanh
+      const soundBtn = document.getElementById('btn-sound-toggle-lobby');
+      soundBtn.onclick = () => {
+        const enabled = window.soundEngine.toggle();
+        soundBtn.textContent = enabled ? '🔊' : '🔇';
+      };
+
+      // Tự động tải trạng thái giải đấu từ server
+      function fetchTournamentStatus() {
+        fetch('/api/tournament')
+          .then(res => res.json())
+          .then(data => {
+            if (!data || !data.tables) return;
+            data.tables.forEach(t => {
+              const el = document.getElementById(`t${t.id}-info`);
+              if (el) {
+                const red = t.redPlayer || 'Trống';
+                const blue = t.bluePlayer || 'Trống';
+                let status = '';
+                if (t.winner) {
+                  status = ` • [${t.winner === 'red' ? 'Đỏ thắng' : 'Xanh thắng'}]`;
+                }
+                el.textContent = `🔴 ${red} vs 🔵 ${blue}${status}`;
+              }
+            });
+          })
+          .catch(() => {});
+      }
+
+      fetchTournamentStatus();
+      setInterval(fetchTournamentStatus, 4000);
+    });
+  </script>
+</body>
+</html>

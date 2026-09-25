@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Đấu Trường Cờ Oẳn Tù Tì 9x9</title>
+  <link rel="stylesheet" href="css/app.css">
+</head>
+<body>
+  <!-- Thanh điều hướng trên cùng -->
+  <header class="navbar">
+    <a href="index.html" class="brand">
+      <div class="brand-icon">⚔️</div>
+      <div>
+        <div class="brand-name">OTTv2 • Đấu Trường 9x9</div>
+        <div class="brand-desc">Đồ án Lập trình mạng</div>
+      </div>
+    </a>
+
+    <div class="nav-actions">
+      <div class="badge" id="spectator-badge" style="color: var(--text-muted);">
+        <span>👁️</span>
+        <span id="spectator-count">0 Khán giả</span>
+      </div>
+
+      <div class="badge" id="badge-role" style="color: var(--color-primary); border-color: var(--color-primary);">
+        Đang kết nối...
+      </div>
+
+      <button id="btn-rules-modal" class="btn btn-secondary" title="Xem luật chơi">
+        📖 Luật Chơi
+      </button>
+
+      <button id="btn-toggle-sound" class="btn btn-secondary" title="Bật/Tắt âm thanh">
+        🔊
+      </button>
+
+      <a href="index.html" class="btn btn-secondary" title="Quay về sảnh">
+        🏠 Sảnh
+      </a>
+    </div>
+  </header>
+
+  <!-- Thanh thông tin mã phòng & Chuyển bàn thi đấu -->
+  <div class="arena-header-bar">
+    <div class="room-info-zone">
+      <span style="font-size: 13px; color: var(--text-muted); font-weight: 700;">MÃ PHÒNG / CHẾ ĐỘ:</span>
+      <span id="room-code-display" class="room-code-tag">...</span>
+      <button id="btn-copy-code" class="btn btn-secondary" style="padding: 4px 10px; font-size: 12px; display: none;">
+        📋 Sao chép mã
+      </button>
+    </div>
+
+    <div style="display: flex; gap: 8px;">
+      <button id="btn-rematch" class="btn btn-primary" style="padding: 6px 14px; font-size: 13px;">
+        🔄 Ván Mới
+      </button>
+      <button id="btn-tour-reset" class="btn btn-danger" style="display: none; padding: 6px 14px; font-size: 13px;">
+        🔄 Làm Mới Giải Đấu
+      </button>
+    </div>
+  </div>
+
+  <!-- Thanh chọn bàn thi đấu giải đấu (GỌN GÀNG, KHÔNG CHIA 4 MÀN HÌNH) -->
+  <nav id="tournament-tabs" class="tour-tabs-container" style="display: none;"></nav>
+
+  <!-- Bố cục sân đấu chính -->
+  <main class="arena-layout">
+    <!-- KHUNG BÀN CỜ CHÍNH -->
+    <div class="board-zone">
+      <div id="turn-indicator" class="turn-badge turn-red">
+        Đang khởi tạo trận đấu...
+      </div>
+
+      <div class="board-wrapper">
+        <div id="board-grid" class="board-grid"></div>
+      </div>
+
+      <!-- Thanh thả cảm xúc nhẹ nhàng -->
+      <div class="reaction-bar">
+        <button class="reaction-btn" data-emoji="👏" title="Vỗ tay">👏</button>
+        <button class="reaction-btn" data-emoji="🔥" title="Đỉnh cao">🔥</button>
+        <button class="reaction-btn" data-emoji="🎯" title="Chuẩn xác">🎯</button>
+        <button class="reaction-btn" data-emoji="👍" title="Tuyệt vời">👍</button>
+        <button class="reaction-btn" data-emoji="❤️" title="Yêu thích">❤️</button>
+      </div>
+    </div>
+
+    <!-- KHUNG ĐIỀU KHIỂN BÊN PHẢI (SIDEBAR) -->
+    <aside class="arena-sidebar">
+      <!-- Thẻ 2 người chơi & quân cờ còn lại -->
+      <div class="players-panel">
+        <!-- Người chơi ĐỎ -->
+        <div class="player-box red-border">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--color-red); text-transform: uppercase;">
+              Bên Đỏ (Player 1)
+            </div>
+            <div id="player-red-name" class="player-name">Đang chờ...</div>
+          </div>
+          <div class="piece-inventory">
+            <span>✊ <strong id="red-count-rock">3</strong></span>
+            <span>✋ <strong id="red-count-paper">3</strong></span>
+            <span>✌️ <strong id="red-count-scissors">3</strong></span>
+          </div>
+        </div>
+
+        <!-- Người chơi XANH -->
+        <div class="player-box blue-border">
+          <div>
+            <div style="font-size: 11px; font-weight: 700; color: var(--color-blue); text-transform: uppercase;">
+              Bên Xanh (Player 2)
+            </div>
+            <div id="player-blue-name" class="player-name">Đang chờ...</div>
+          </div>
+          <div class="piece-inventory">
+            <span>✊ <strong id="blue-count-rock">3</strong></span>
+            <span>✋ <strong id="blue-count-paper">3</strong></span>
+            <span>✌️ <strong id="blue-count-scissors">3</strong></span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tóm tắt giải đấu (chỉ hiển thị khi đấu giải) -->
+      <div id="tournament-summary-card" class="summary-widget" style="display: none;">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Tóm Tắt 4 Bàn Đấu (Bấm để xem)
+        </div>
+        <div id="tournament-summary-list" style="display: flex; flex-direction: column; gap: 6px;"></div>
+      </div>
+
+      <!-- Lịch sử nước đi -->
+      <div class="tabs-widget">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Lịch Sử Nước Đi
+        </div>
+        <div id="move-history-list" class="history-box">
+          <div class="history-item">Chưa có nước đi nào.</div>
+        </div>
+      </div>
+
+      <!-- Hộp thoại chat -->
+      <div class="tabs-widget">
+        <div style="font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase;">
+          Bình Luận Trận Đấu
+        </div>
+        <div id="chat-messages" class="chat-box"></div>
+        <div class="chat-input-row">
+          <input
+            type="text"
+            id="input-chat-message"
+            class="input-field"
+            placeholder="Nhập tin nhắn..."
+            maxlength="150"
+            style="padding: 8px 12px; font-size: 13px;"
+          />
+          <button id="btn-send-chat" class="btn btn-primary" style="padding: 8px 14px; font-size: 13px;">
+            Gửi
+          </button>
+        </div>
+      </div>
+    </aside>
+  </main>
+
+  <!-- Lớp hiển thị cảm xúc bay -->
+  <div id="floating-emojis-layer"></div>
+
+  <!-- Toast thông báo -->
+  <div id="toast-container"></div>
+
+  <!-- MODAL CHIẾN THẮNG -->
+  <div id="victory-modal" class="modal-overlay">
+    <div class="modal-content" style="text-align: center; align-items: center;">
+      <span style="font-size: 48px;">🏆</span>
+      <div id="victory-title" class="modal-title" style="color: var(--color-amber);">
+        CHIẾN THẮNG!
+      </div>
+      <div id="victory-desc" class="modal-desc"></div>
+      <div style="display: flex; gap: 12px; margin-top: 8px;">
+        <button onclick="document.getElementById('btn-rematch').click()" class="btn btn-primary">
+          Đấu Ván Mới
+        </button>
+        <a href="index.html" class="btn btn-secondary">
+          Về Sảnh Chính
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL LUẬT CHƠI -->
+  <div id="rules-modal" class="modal-overlay">
+    <div class="modal-content">
+      <div class="modal-title">📖 QUY TẮC CỜ OẲN TÙ TÌ 9x9 (OTTV2)</div>
+      <div class="modal-desc" style="display: flex; flex-direction: column; gap: 10px; line-height: 1.6;">
+        <p><strong>1. Lực lượng:</strong> Mỗi bên có 9 quân cờ gồm 3 Đấm (✊), 3 Lá (✋), 3 Kéo (✌️).</p>
+        <p><strong>2. Di chuyển:</strong> Mỗi quân đi 1 ô theo 8 hướng (ngang, dọc, chéo).</p>
+        <p><strong>3. Quy tắc ăn quân:</strong></p>
+        <ul style="padding-left: 20px;">
+          <li>✊ <strong>Đấm</strong> ăn ✌️ <strong>Kéo</strong></li>
+          <li>✌️ <strong>Kéo</strong> ăn ✋ <strong>Lá</strong></li>
+          <li>✋ <strong>Lá</strong> ăn ✊ <strong>Đấm</strong></li>
+          <li><em>Hai quân cùng loại không thể ăn nhau, chỉ đứng chặn đường nhau.</em></li>
+        </ul>
+        <p><strong>4. Điều kiện chiến thắng:</strong></p>
+        <ul style="padding-left: 20px;">
+          <li>🎯 <strong>Đột kích căn cứ:</strong> Đỏ đưa quân vào ô <strong>i9</strong> hoặc Xanh đưa quân vào ô <strong>a1</strong> ➔ Thắng ngay!</li>
+          <li>⚔️ <strong>Tuyệt diệt:</strong> Ăn sạch toàn bộ quân cờ của đối thủ trên bàn ➔ Thắng tuyệt đối!</li>
+        </ul>
+      </div>
+      <button id="btn-close-rules" class="btn btn-primary" style="align-self: flex-end;">
+        Đã Hiểu
+      </button>
+    </div>
+  </div>
+
+  <!-- Nạp các thư viện kịch bản -->
+  <script src="/socket.io/socket.io.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/network.js"></script>
+  <script src="js/sound.js"></script>
+  <script src="js/bot.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
